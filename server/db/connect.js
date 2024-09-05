@@ -5,7 +5,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",          // Replace with your MySQL username
   password: "pass",      // Replace with your MySQL password
-  database: "uplink",    // Replace with your database name
+  database: "here_job",    // Replace with your database name
 }).promise();
 
 // Connect to the database

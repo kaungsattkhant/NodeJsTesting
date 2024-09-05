@@ -32,13 +32,13 @@ const storeAccount = async (req, res) => {
       withdrawal_id,
       is_active,
     ]);
-    // console.log(result);
-    // res.json(result);
+    console.log(result);
+    res.json(result);
     // Fetch the newly created account from the database
-    const [newAccount] = await db.query("SELECT * FROM accounts WHERE id = ?", [
-      result.insertId,
-    ]);
-    res.json(newAccount[0]);
+    // const [newAccount] = await db.query("SELECT * FROM accounts WHERE id = ?", [
+    //   result.insertId,
+    // ]);
+    // res.json(newAccount[0]);
   } catch (err) {
     res.status(500).json({
       message: "Error creating account",
