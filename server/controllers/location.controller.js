@@ -5,9 +5,7 @@ const getLocations = async (req, res) => {
     const rows = await knex("locations").orderBy("id", "desc");
     res.json({ data: rows });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving ", error: err.message });
+    res.status(500).json({ message: "Error retrieving ", error: err.message });
   }
 };
 

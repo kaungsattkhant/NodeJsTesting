@@ -40,6 +40,23 @@ const getJobs = async (req, res) => {
   }
 };
 
+const getDetail = async (req, res) => {
+  const { id: jobId } = req.params; // Access jobId from URL parameters
+  const [jobResult, functionIds] = await Promise.all([
+    knex("jobs").where({ id: jobId }).first(),
+    knex("job_function").where({ job_id: jobId }).pluck('function_id')
+  ]);
+  // const result = await knex("jobs").where({ id: jobId }).first();
+  // const function_ids = await knex("job_function").where({ job_id: jobId }).pluck('function_id');
+  // console.log(function_ids);
+  if (!jobResult) {
+    res.status(404).json({ message: "data not found" });
+  }
+  // console.log(result);
+  jobResult.function_ids=functionIds;
+  res.json({ data: jobResult });
+};
+
 const storeJob = async (req, res) => {
   const {
     id,
@@ -61,19 +78,17 @@ const storeJob = async (req, res) => {
   });
   const insertId = result[0];
   if (!insertId) {
-    res.status(500).json({message:'Create error'});
+    res.status(500).json({ message: "Create error" });
   }
   if (insertId) {
-    for(const function_id of function_ids){
+    for (const function_id of function_ids) {
       const jobFunction = await knex("job_function").insert({
         job_id: insertId,
-        function_id:function_id,
+        function_id: function_id,
       });
     }
-    res.json({message:'Created Successfully' });
-   
+    res.json({ message: "Created Successfully" });
   }
-
 };
 
-module.exports = { getJobs, storeJob };
+module.exports = { getJobs, storeJob, getDetail };
