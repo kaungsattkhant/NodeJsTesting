@@ -14,7 +14,6 @@ const loginAuth = async (req, res) => {
     const user = await knex("users")
       .where({ phone_number: phone_number })
       .first();
-
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -28,7 +27,7 @@ const loginAuth = async (req, res) => {
     const token = jwt.sign(
       { id: foundUser.id, username: foundUser.username },
      'here-job', // replace with your secret key
-      { expiresIn: "1h" } // optional: token expiration
+      // { expiresIn: "1h" } // optional: token expiration
     );
     console.log(token);
     res.status(200).json({
