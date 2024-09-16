@@ -45,6 +45,17 @@ const getJobs = async (req, res) => {
           "functions.name as function_name",
           "functions.id as function_id"
         );
+      const jobCustomers = await knex("customers")
+        .join("job_customer", "customers.id", "job_customer.customer_id")
+        .where("job_customer.job_id", job.id)
+        .select(
+          "customers.name as customer_name",
+          "customers.id as customer_id"
+        );
+      job.customers = jobCustomers.map((f) => ({
+        id: f.customer_id,
+        name: f.customer_name,
+      })); // Attach
       job.functions = functions.map((f) => ({
         id: f.function_id,
         name: f.function_name,
@@ -56,11 +67,67 @@ const getJobs = async (req, res) => {
   }
 };
 
+const applyJob = async (req, res) => {
+  const { id, customer_id } = req.body;
+  try {
+    const result = await knex("job_customer").insert({
+      job_id: id,
+      customer_id,
+    });
+    const insertId = result[0];
+    if (!insertId) {
+      return res.status(500).json({ message: "Create error" });
+    }
+    res.json({ message: "Created Successfully" });
+  } catch (error) {}
+};
+
+const cancelJob = async (req, res) => {
+  const { jobId, customerId } = req.params; // Extract jobId and customerId from the URL
+  try {
+    const result = await knex("job_customer")
+      .where({ job_id: jobId })
+      .where({ customer_id: customerId })
+      .del();
+    if (result === 0) {
+      return res.status(404).json({ message: "Data not found" });
+    }
+    res.status(200).json({
+      message: "Data deleted successfully",
+      status: 200,
+      id: jobId,
+    });
+  } catch (error) {}
+};
+
 const getDetail = async (req, res) => {
   const { id: jobId } = req.params; // Access jobId from URL parameters
   const [jobResult, functionIds] = await Promise.all([
-    knex("jobs").where({ id: jobId }).first(),
-    knex("job_function").where({ job_id: jobId }).pluck("function_id"),
+    knex("jobs")
+      .where({ "jobs.id": jobId })
+      .join("locations", "jobs.location_id", "locations.id")
+      .select(
+        "jobs.id",
+        "jobs.name",
+        "jobs.company",
+        "jobs.education",
+        "jobs.date_time",
+        "jobs.description",
+        "jobs.is_active",
+        "jobs.created_at",
+        "jobs.updated_at",
+        "locations.name as location_name",
+        "locations.latitude",
+        "locations.longitude"
+      )
+      .first(),
+    // knex("job_function").where({ job_id: jobId })
+    // .join("functions", "job_function.function_id", "functions.id")
+    // .pluck("function_id","functions.name"),
+    knex("job_function")
+      .where({ job_id: jobId })
+      .join("functions", "job_function.function_id", "functions.id")
+      .select("functions.id as function_id", "functions.name as function_name"),
   ]);
   // const result = await knex("jobs").where({ id: jobId }).first();
   // const function_ids = await knex("job_function").where({ job_id: jobId }).pluck('function_id');
@@ -68,7 +135,7 @@ const getDetail = async (req, res) => {
   if (!jobResult) {
     res.status(404).json({ message: "data not found" });
   }
-  // console.log(result);
+  console.log(functionIds);
   jobResult.function_ids = functionIds;
   res.json({ data: jobResult });
 };
@@ -201,4 +268,11 @@ const deleteJob = async (req, res) => {
   }
 };
 
-module.exports = { getJobs, storeJob, getDetail, deleteJob };
+module.exports = {
+  getJobs,
+  storeJob,
+  getDetail,
+  deleteJob,
+  applyJob,
+  cancelJob,
+};

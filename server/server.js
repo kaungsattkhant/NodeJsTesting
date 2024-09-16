@@ -10,6 +10,7 @@ const userRoutes=require('./routes/user');
 const locationRoutes=require('./routes/locations');
 const functionRoutes=require('./routes/functions');
 const jobRoutes=require('./routes/jobs');
+const customerRoutes=require('./routes/customers');
 
 app.use('/api/login',authRoutes);
 app.use('/api/accounts',accountRoutes);
@@ -17,6 +18,7 @@ app.use('/api/users',userRoutes);
 app.use('/api/locations',locationRoutes);
 app.use('/api/functions',functionRoutes);
 app.use('/api/jobs',jobRoutes);
+app.use('/api/customers',customerRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Server started on port ${PORT}`);

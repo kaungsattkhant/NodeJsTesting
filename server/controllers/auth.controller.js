@@ -27,9 +27,8 @@ const loginAuth = async (req, res) => {
     const token = jwt.sign(
       { id: foundUser.id, username: foundUser.username },
      'here-job', // replace with your secret key
-      // { expiresIn: "1h" } // optional: token expiration
+      { expiresIn: "1h" } // optional: token expiration
     );
-    console.log(token);
     res.status(200).json({
       message: "Login successful",
       token: token,

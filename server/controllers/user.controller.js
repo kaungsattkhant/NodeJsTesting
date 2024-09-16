@@ -78,7 +78,6 @@ const storeUser = async (req, res) => {
         phone_number,
         password: hashedPassword,
       });
-      console.log(result);
       const insertId = result[0];
       if (!insertId) {
         return res.status(500).json({ message: "User creation failed" });
